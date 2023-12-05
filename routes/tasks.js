@@ -14,6 +14,18 @@ module.exports = function (db) {
     }
   });
 
+  router.get("/:id", async (req, res) => {
+    try {
+        const task = await collection.findOne({ _id: new ObjectId(req.params.id) });
+        if (!task) {
+            return res.status(404).send("Task not found.");
+        }
+        res.json(task);
+    } catch (e) {
+        res.status(500).send("Failed to fetch the task.");
+    }
+});
+
   router.post("/", async (req, res) => {
     try {
       const result = await collection.insertOne(req.body);

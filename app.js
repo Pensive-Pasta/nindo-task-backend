@@ -1,26 +1,33 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const cors = require("cors");
+const app = express();
+const { MongoClient } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+  origin: "http://localhost:3000"
+}));
 
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri, {
-  serverApi: ServerApiVersion.v1,
-});
+const client = new MongoClient(uri);
 
-client.connect((err, client) => {
-  if (err) {
-    console.error("Failed to connect to MongoDB", err);
-    return;
-  }
-  console.log("Connected successfully to MongoDB");
+async function connectToMongoDB() {
+    try {
+        await client.connect();
+        console.log("Connected successfully to MongoDB");
+        return client.db("nindoTaskDB");
+    } catch (e) {
+        console.error("Error connecting to MongoDB", e);
+        process.exit(1);
+    }
+}
 
-  const db = client.db("nindo-task-db");
-  const taskRoutes = require("./routes/tasks")(db);
-  app.use("/api/tasks", taskRoutes);
+connectToMongoDB().then(db => {
+    const taskRoutes = require("./routes/tasks")(db);
+    app.use("/api/tasks", taskRoutes);
 
-  const PORT = process.env.PORT || 3001;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-});
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}).catch(console.error);
