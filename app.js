@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://main.d2l2xcdjiw7jsr.amplifyapp.com", ],
   })
 );
 
@@ -31,7 +31,7 @@ connectToMongoDB()
     const taskRoutes = require("./routes/tasks")(db);
     app.use("/api/tasks", taskRoutes);
     app.get('/api/ping', (req, res) => {
-      res.send('Server is up and running');
+      res.json({ message: 'Server is up and running' });
     });
 
     const PORT = process.env.PORT || 3001;
