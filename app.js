@@ -15,15 +15,6 @@ app.use(
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
-app.get('/ping', (req, res) => {
-  try {
-    res.status(200).send('Server is up and running');
-  } catch (error) {
-    console.error('Ping Error:', error);
-    res.status(500).send('Received an error');
-  }
-});
-
 async function connectToMongoDB() {
   try {
     await client.connect();
@@ -39,6 +30,9 @@ connectToMongoDB()
   .then((db) => {
     const taskRoutes = require("./routes/tasks")(db);
     app.use("/api/tasks", taskRoutes);
+    app.get('/api/ping', (req, res) => {
+      res.send('Server is up and running');
+    });
 
     const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
